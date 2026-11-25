@@ -7,9 +7,10 @@ export default function Profile() {
   return (
     <Screen>
       <Header title="Hồ sơ" canGoBack={false} />
+      <SectionHeading eyebrow="Tài khoản" title="Thông tin learner" />
+      <ProfileForm />
       <SectionHeading eyebrow="Tiện ích" title="Dịch vụ học tập" />
       <LearnerShortcuts />
-      <ProfileForm />
       <PasswordForm />
     </Screen>
   );

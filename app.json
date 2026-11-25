@@ -30,7 +30,12 @@
         }
       ],
       "expo-secure-store",
-      "expo-video",
+      [
+        "expo-video",
+        {
+          "supportsPictureInPicture": true
+        }
+      ],
       "expo-sharing",
       "expo-notifications"
     ]

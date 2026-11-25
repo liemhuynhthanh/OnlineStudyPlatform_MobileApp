@@ -20,7 +20,7 @@ export function Screen({ children, scroll = true }: { children: ReactNode; scrol
   );
 }
 
-export function Header({ title, canGoBack = false, fallbackHref = "/(tabs)", right }: { title: string; canGoBack?: boolean; fallbackHref?: string; right?: ReactNode }) {
+export function Header({ title, canGoBack = false, fallbackHref = "/(tabs)", right }: { title?: string; canGoBack?: boolean; fallbackHref?: string; right?: ReactNode }) {
   function handleBack() {
     if (router.canGoBack()) {
       router.back();
@@ -31,12 +31,18 @@ export function Header({ title, canGoBack = false, fallbackHref = "/(tabs)", rig
 
   return (
     <View style={styles.header}>
-      {canGoBack ? (
-        <Pressable accessibilityRole="button" accessibilityLabel="Quay lại" hitSlop={10} onPress={handleBack} style={styles.iconButton}>
-          <Ionicons name="arrow-back" size={23} color={colors.ink} />
-        </Pressable>
-      ) : <View style={styles.headerSpacer} />}
-      <Text style={styles.headerTitle} numberOfLines={1}>{title}</Text>
+      <View style={styles.headerLeading}>
+        {canGoBack ? (
+          <Pressable accessibilityRole="button" accessibilityLabel="Quay lại" hitSlop={10} onPress={handleBack} style={styles.iconButton}>
+            <Ionicons name="arrow-back" size={22} color={colors.ink} />
+          </Pressable>
+        ) : null}
+        <View style={styles.brand}>
+          <View style={styles.brandMark}><Ionicons name="school-outline" size={17} color={colors.white} /></View>
+          <Text style={styles.brandText} numberOfLines={1}>E-Learning</Text>
+        </View>
+      </View>
+      <View style={styles.headerCenter}><Text style={styles.headerTitle} numberOfLines={1}>{title ?? ""}</Text></View>
       {right ?? <View style={styles.headerSpacer} />}
     </View>
   );
@@ -61,11 +67,11 @@ export function Card({ children, onPress, style }: { children: ReactNode; onPres
 }
 
 export function Badge({ children, tone = "indigo" }: { children: ReactNode; tone?: "indigo" | "green" | "orange" | "muted" }) {
-  return <View style={[styles.badge, tone === "green" && styles.badgeGreen, tone === "orange" && styles.badgeOrange, tone === "muted" && styles.badgeMuted]}><Text style={styles.badgeText} numberOfLines={1}>{children}</Text></View>;
+  return <View style={[styles.badge, tone === "green" && styles.badgeGreen, tone === "orange" && styles.badgeOrange, tone === "muted" && styles.badgeMuted]}><Text style={styles.badgeText} numberOfLines={2}>{children}</Text></View>;
 }
 
 export function SectionHeading({ eyebrow, title, action, onAction }: { eyebrow?: string; title: string; action?: string; onAction?: () => void }) {
-  return <View style={styles.sectionHeading}><View style={styles.sectionHeadingCopy}>{eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}<Text style={styles.sectionTitle} numberOfLines={1}>{title}</Text></View>{action ? <Pressable style={styles.sectionAction} onPress={onAction}><Text style={styles.link} numberOfLines={1}>{action}</Text></Pressable> : null}</View>;
+  return <View style={styles.sectionHeading}><View style={styles.sectionHeadingCopy}>{eyebrow ? <Text style={styles.eyebrow}>{eyebrow}</Text> : null}<Text style={styles.sectionTitle} numberOfLines={2}>{title}</Text></View>{action ? <Pressable style={styles.sectionAction} onPress={onAction}><Text style={styles.link} numberOfLines={1}>{action}</Text></Pressable> : null}</View>;
 }
 
 export function ProgressBar({ value }: { value: number }) {
@@ -78,7 +84,7 @@ export function StatTile({ label, value, icon, iconColor = colors.primary }: { l
     <View style={styles.statTile}>
       {icon ? <View style={[styles.statIcon, { backgroundColor: iconColor === colors.success ? colors.successSoft : colors.softIndigo }]}><Ionicons name={icon} size={20} color={iconColor} /></View> : null}
       <Text style={styles.statValue}>{value}</Text>
-      <Text style={styles.statLabel}>{label}</Text>
+      <Text style={styles.statLabel} numberOfLines={2}>{label}</Text>
     </View>
   );
 }
@@ -103,7 +109,7 @@ export function ErrorState({ message, onRetry }: { message: string; onRetry?: ()
 export function EmptyState({ title, message, icon = "file-tray-outline", actionLabel, onAction }: { title: string; message: string; icon?: keyof typeof Ionicons.glyphMap; actionLabel?: string; onAction?: () => void }) { return <View style={styles.empty}><Ionicons name={icon} size={40} color={colors.muted} /><Text style={styles.emptyTitle}>{title}</Text><Text style={styles.muted}>{message}</Text>{actionLabel ? <Button title={actionLabel} onPress={() => onAction?.()} variant="secondary" /> : null}</View>; }
 
 export function CourseCard({ title, category, price, thumbnail, progress, instructor, onPress }: { title: string; category: string; price: number; thumbnail: string | null; progress?: number; instructor?: string | null; onPress: () => void }) {
-  return <Card onPress={onPress} style={styles.courseCard}>{thumbnail ? <Image source={{ uri: thumbnail }} style={styles.courseImage} /> : <View style={[styles.courseImage, styles.imagePlaceholder]}><Ionicons name="book-outline" size={27} color={colors.primary} /></View>}<View style={styles.courseBody}><Badge>{category}</Badge><Text style={styles.courseTitle} numberOfLines={2}>{title}</Text>{instructor ? <Text style={styles.courseInstructor} numberOfLines={1}>{instructor}</Text> : null}{progress !== undefined ? <View style={styles.courseProgress}><ProgressBar value={progress} /><Text style={styles.progressLabel}>{Math.round(progress)}%</Text></View> : <Text style={styles.coursePrice}>{price === 0 ? "Miễn phí" : formatVnd(price)}</Text>}</View><Ionicons name="arrow-forward" size={20} color={colors.primary} /></Card>;
+  return <Card onPress={onPress} style={styles.courseCard}>{thumbnail ? <Image source={{ uri: thumbnail }} style={styles.courseImage} /> : <View style={[styles.courseImage, styles.imagePlaceholder]}><Ionicons name="book-outline" size={27} color={colors.primary} /></View>}<View style={styles.courseBody}><Badge>{category}</Badge><Text style={styles.courseTitle} numberOfLines={2}>{title}</Text>{instructor ? <Text style={styles.courseInstructor} numberOfLines={2}>{instructor}</Text> : null}{progress !== undefined ? <View style={styles.courseProgress}><ProgressBar value={progress} /><Text style={styles.progressLabel}>{Math.round(progress)}%</Text></View> : <Text style={styles.coursePrice}>{price === 0 ? "Miễn phí" : formatVnd(price)}</Text>}</View><Ionicons name="arrow-forward" size={20} color={colors.primary} /></Card>;
 }
 
 export function StudyCourseCard({ title, category, thumbnail, progressPercent, status, instructorName, bestQuizScorePercent, onPress }: { title: string; category: string; thumbnail: string | null; progressPercent: number; status: "in_progress" | "completed"; instructorName: string | null; bestQuizScorePercent?: number | null; onPress: () => void }) {
@@ -114,7 +120,7 @@ export function StudyCourseCard({ title, category, thumbnail, progressPercent, s
         <View style={styles.studyCourseBody}>
           <Badge tone={status === "completed" ? "green" : "indigo"}>{status === "completed" ? "Hoàn thành" : "Đang học"}</Badge>
           <Text style={styles.studyCourseTitle} numberOfLines={2}>{title}</Text>
-          <Text style={styles.courseInstructor} numberOfLines={1}>{category}{instructorName ? ` · ${instructorName}` : ""}</Text>
+          <Text style={styles.courseInstructor} numberOfLines={2}>{category}{instructorName ? ` · ${instructorName}` : ""}</Text>
         </View>
       </View>
       <View style={styles.studyCourseFooter}>
@@ -131,11 +137,11 @@ export function formatDate(value: string) { return new Date(value).toLocaleDateS
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, content: { width: "100%", maxWidth: 720, alignSelf: "center", padding: spacing.md, gap: spacing.md, paddingBottom: 42 },
-  header: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: spacing.md, backgroundColor: colors.background }, headerTitle: { flex: 1, minWidth: 0, textAlign: "center", fontSize: 18, fontWeight: "700", color: colors.ink }, headerSpacer: { width: 40 }, iconButton: { minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" },
+  header: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: spacing.md, backgroundColor: colors.background }, headerLeading: { flexDirection: "row", alignItems: "center", gap: spacing.xs, flexShrink: 1, minWidth: 0 }, headerCenter: { flex: 1, minWidth: 0, alignItems: "center", paddingHorizontal: spacing.sm }, headerTitle: { maxWidth: "100%", textAlign: "center", fontSize: 16, lineHeight: 20, fontWeight: "700", color: colors.ink }, headerSpacer: { width: 40 }, iconButton: { minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }, brand: { flexDirection: "row", alignItems: "center", gap: 6, flexShrink: 1, minWidth: 0 }, brandMark: { width: 28, height: 28, alignItems: "center", justifyContent: "center", borderRadius: 9, backgroundColor: colors.primary }, brandText: { color: colors.ink, fontSize: 14, lineHeight: 18, fontWeight: "800" },
   button: { minHeight: 48, borderRadius: radius.md, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.md, backgroundColor: colors.primary }, buttonSecondary: { backgroundColor: colors.softBlue, borderWidth: 1, borderColor: "#D8D9FF" }, buttonGhost: { backgroundColor: "transparent" }, buttonDanger: { backgroundColor: colors.danger }, buttonLight: { backgroundColor: colors.white }, buttonDisabled: { opacity: 0.5 }, buttonPressed: { opacity: 0.8 }, buttonText: { color: colors.white, fontSize: 15, fontWeight: "700" }, buttonTextSecondary: { color: colors.primary }, buttonTextLight: { color: colors.navy },
   field: { gap: spacing.xs }, label: { color: colors.ink, fontSize: 14, fontWeight: "600" }, input: { minHeight: 52, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, paddingHorizontal: spacing.md, color: colors.ink, fontSize: 16 },
-  card: { borderRadius: radius.lg, padding: spacing.md, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, gap: spacing.sm }, cardPressed: { opacity: 0.88 }, badge: { alignSelf: "flex-start", borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 5, backgroundColor: colors.softIndigo }, badgeGreen: { backgroundColor: colors.softGreen }, badgeOrange: { backgroundColor: colors.softOrange }, badgeMuted: { backgroundColor: colors.border }, badgeText: { color: colors.primaryDark, fontSize: 11, fontWeight: "800", textTransform: "uppercase", letterSpacing: 0.4 },
-  sectionHeading: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", gap: spacing.md, marginTop: spacing.sm }, sectionHeadingCopy: { flex: 1, gap: 5 }, eyebrow: { color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase" }, sectionTitle: { color: colors.ink, fontSize: 22, fontWeight: "800", letterSpacing: -0.3, flexShrink: 1 }, sectionAction: { flexShrink: 1, maxWidth: "45%" }, link: { color: colors.primary, fontSize: 13, fontWeight: "800", textAlign: "right" }, progressTrack: { height: 7, borderRadius: 5, backgroundColor: colors.border, overflow: "hidden", flex: 1 }, progressFill: { height: "100%", borderRadius: 5, backgroundColor: colors.primary },
+  card: { borderRadius: radius.lg, padding: spacing.md, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, gap: spacing.sm }, cardPressed: { opacity: 0.88 }, badge: { alignSelf: "flex-start", maxWidth: "100%", flexShrink: 1, borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 5, backgroundColor: colors.softIndigo }, badgeGreen: { backgroundColor: colors.softGreen }, badgeOrange: { backgroundColor: colors.softOrange }, badgeMuted: { backgroundColor: colors.border }, badgeText: { color: colors.primaryDark, fontSize: 11, lineHeight: 14, fontWeight: "800", textTransform: "uppercase", letterSpacing: 0.4 },
+  sectionHeading: { flexDirection: "row", alignItems: "flex-end", justifyContent: "space-between", gap: spacing.md, marginTop: spacing.sm }, sectionHeadingCopy: { flex: 1, minWidth: 0, gap: 5 }, eyebrow: { color: colors.primary, fontSize: 11, fontWeight: "800", letterSpacing: 1.4, textTransform: "uppercase" }, sectionTitle: { color: colors.ink, fontSize: 22, lineHeight: 26, fontWeight: "800", letterSpacing: -0.3, flexShrink: 1 }, sectionAction: { flexShrink: 1, maxWidth: "50%" }, link: { color: colors.primary, fontSize: 13, fontWeight: "800", textAlign: "right" }, progressTrack: { height: 7, borderRadius: 5, backgroundColor: colors.border, overflow: "hidden", flex: 1 }, progressFill: { height: "100%", borderRadius: 5, backgroundColor: colors.primary },
   center: { flex: 1, minHeight: 260, alignItems: "center", justifyContent: "center", gap: spacing.md, padding: spacing.lg }, errorText: { color: colors.danger, textAlign: "center", fontSize: 15 }, empty: { alignItems: "center", gap: spacing.sm, paddingVertical: spacing.xl }, emptyTitle: { color: colors.ink, fontSize: 17, fontWeight: "700" }, muted: { color: colors.mutedForeground, fontSize: 14, textAlign: "center", maxWidth: "100%" },
   courseCard: { flexDirection: "row", alignItems: "center", gap: spacing.md }, courseImage: { width: 76, height: 76, borderRadius: radius.md, backgroundColor: colors.softBlue }, imagePlaceholder: { alignItems: "center", justifyContent: "center" }, courseBody: { flex: 1, minWidth: 0, gap: 5 }, courseTitle: { color: colors.text, fontSize: 16, fontWeight: "800", lineHeight: 21 }, courseInstructor: { color: colors.muted, fontSize: 12 }, coursePrice: { color: colors.success, fontSize: 14, fontWeight: "800" }, courseProgress: { flexDirection: "row", alignItems: "center", gap: spacing.sm, marginTop: 3 }, progressLabel: { color: colors.muted, fontSize: 12, fontWeight: "700", width: 42, textAlign: "right" },
   statTile: { flex: 1, minWidth: 0, minHeight: 112, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, gap: spacing.sm }, statIcon: { width: 34, height: 34, borderRadius: 12, alignItems: "center", justifyContent: "center" }, statValue: { color: colors.text, fontSize: 23, fontWeight: "800" }, statLabel: { color: colors.mutedForeground, fontSize: 12, lineHeight: 16 },

@@ -1,17 +1,18 @@
 import { Ionicons } from "@expo/vector-icons";
-import { useEventListener } from "expo";
+import { useEvent, useEventListener } from "expo";
 import { useMutation, useQuery, useQueryClient } from "@tanstack/react-query";
 import { router, useLocalSearchParams } from "expo-router";
 import { useVideoPlayer, VideoView } from "expo-video";
 import { useCallback, useEffect, useRef, useState } from "react";
 import { Alert as NativeAlert, Linking, Pressable, StyleSheet, Text, View } from "react-native";
 import { getApiErrorMessage } from "../../api/client";
-import { completeLesson, getChat, getLearningCourse, getLearningLesson, getLessonSummary, sendChat, sendWatchEvent } from "../../api/services";
+import { completeLesson, getChat, getLearningCourse, getLearningLesson, getLessonSummary, getQuiz, sendChat, sendWatchEvent } from "../../api/services";
 import type { WatchEventType } from "../../api/types";
 import { Alert, Button, Card, ErrorState, Header, LoadingState, Screen, SectionHeading, SegmentTabs } from "../../components/ui";
 import { LessonSheet } from "../../components/study/lesson-sheet";
 import { SummaryPanel } from "../../components/study/summary-panel";
 import { colors, radius, spacing } from "../../theme";
+import { resolveMediaUrl } from "../../utils/media-url";
 
 type PlayerTab = "content" | "summary";
 
@@ -35,6 +36,7 @@ export default function LearningPlayer() {
 
   const lessonQuery = useQuery({ queryKey: ["lesson", courseId, selectedLessonId], queryFn: () => getLearningLesson(courseId, selectedLessonId as string), enabled: Boolean(courseId && selectedLessonId) });
   const lesson = lessonQuery.data;
+  const quizQuery = useQuery({ queryKey: ["quiz", courseId, selectedLessonId], queryFn: () => getQuiz(courseId, selectedLessonId as string), enabled: Boolean(courseId && selectedLessonId) });
   const summaryQuery = useQuery({
     queryKey: ["summary", courseId, selectedLessonId],
     queryFn: () => getLessonSummary(courseId, selectedLessonId as string),
@@ -84,10 +86,12 @@ export default function LearningPlayer() {
     onError: (error) => NativeAlert.alert("Gửi câu hỏi thất bại", getApiErrorMessage(error)),
   });
 
-  const player = useVideoPlayer(lesson?.videoUrl ?? null, (instance) => {
+  const videoSource = resolveMediaUrl(lesson?.videoUrl);
+  const player = useVideoPlayer(videoSource, (instance) => {
     instance.loop = false;
     instance.timeUpdateEventInterval = 1;
   });
+  const { status, error } = useEvent(player, "statusChange", { status: player.status });
 
   const emitEvent = useCallback((eventType: WatchEventType, positionSeconds: number, bucket: string = "once") => {
     if (!courseId || !selectedLessonId) return;
@@ -135,8 +139,9 @@ export default function LearningPlayer() {
   }
 
   function openMaterial() {
-    if (!lesson?.materialUrl) return;
-    void Linking.openURL(lesson.materialUrl).catch(() => NativeAlert.alert("Không mở được tài liệu", "Vui lòng thử lại sau."));
+    const materialUrl = resolveMediaUrl(lesson?.materialUrl);
+    if (!materialUrl) return;
+    void Linking.openURL(materialUrl).catch(() => NativeAlert.alert("Không mở được tài liệu", "Vui lòng thử lại sau."));
   }
 
   if (courseQuery.isLoading) return <Screen scroll={false}><LoadingState /></Screen>;
@@ -147,11 +152,23 @@ export default function LearningPlayer() {
 
   return (
     <Screen>
-      <Header title={courseQuery.data.course.title} canGoBack fallbackHref="/(tabs)/courses" right={<Pressable accessibilityRole="button" accessibilityLabel="Danh sách bài học" hitSlop={8} onPress={() => setSheetOpen(true)} style={styles.iconButton}><Ionicons name="list-outline" size={22} color={colors.primary} /></Pressable>} />
-      {lesson.videoUrl ? (
-        <View style={styles.playerWrap}>
-          <VideoView player={player} style={styles.video} contentFit="contain" nativeControls allowsPictureInPicture fullscreenOptions={{ enable: true }} />
+      <Header title={courseQuery.data.course.title} canGoBack fallbackHref="/(tabs)/courses" right={
+        <View style={styles.headerActions}>
+          <Pressable accessibilityRole="button" accessibilityLabel="Danh sách bài học" hitSlop={8} onPress={() => setSheetOpen(true)} style={styles.iconButton}><Ionicons name="list-outline" size={22} color={colors.primary} /></Pressable>
+          {quizQuery.data?.quiz ? <Pressable accessibilityRole="button" accessibilityLabel="Làm quiz bài học" hitSlop={8} onPress={() => router.push({ pathname: "/learn/[courseId]/lesson/[lessonId]/quiz", params: { courseId, lessonId: selectedLessonId } })} style={styles.iconButton}><Ionicons name="help-circle-outline" size={22} color={colors.primary} /></Pressable> : null}
+          <Pressable accessibilityRole="button" accessibilityLabel={lesson.isCompleted ? "Đã hoàn thành" : "Đánh dấu hoàn thành"} disabled={lesson.isCompleted || completeMutation.isPending} hitSlop={8} onPress={() => completeMutation.mutate()} style={styles.iconButton}><Ionicons name={lesson.isCompleted ? "checkmark-circle" : "checkmark-circle-outline"} size={22} color={lesson.isCompleted ? colors.success : colors.primary} /></Pressable>
         </View>
+      } />
+      {videoSource ? (
+        status === "error" ? (
+          <View style={styles.playerError}>
+            <Alert title="Không phát được video" message={error?.message ? `Trình phát báo lỗi: ${error.message}` : "Vui lòng kiểm tra kết nối và thử lại."} tone="danger" />
+          </View>
+        ) : (
+          <View style={styles.playerWrap}>
+            <VideoView player={player} style={styles.video} contentFit="contain" nativeControls allowsPictureInPicture fullscreenOptions={{ enable: true }} />
+          </View>
+        )
       ) : (
         <View style={styles.videoPlaceholder}><Ionicons name="videocam-off-outline" size={30} color={colors.muted} /><Text style={styles.muted}>Bài học này chưa có video.</Text></View>
       )}
@@ -159,10 +176,6 @@ export default function LearningPlayer() {
         <BadgeText position={lesson.position} completed={lesson.isCompleted} />
         <Text style={styles.title}>{lesson.title}</Text>
         <Text style={styles.description}>{lesson.description || "Nội dung bài học."}</Text>
-      </View>
-      <View style={styles.actions}>
-        <Button title="Danh sách bài học" variant="secondary" onPress={() => setSheetOpen(true)} />
-        <Button title="Đánh dấu hoàn thành" onPress={() => completeMutation.mutate()} loading={completeMutation.isPending} disabled={lesson.isCompleted} />
       </View>
       <SegmentTabs value={tab} onChange={setTab} options={[{ value: "content", label: "Nội dung", icon: "document-text-outline" }, { value: "summary", label: "Tóm tắt AI", icon: "sparkles-outline" }]} />
       {tab === "summary" ? (
@@ -172,7 +185,6 @@ export default function LearningPlayer() {
           <SectionHeading eyebrow="Bài học" title="Nội dung chính" />
           <Card><Text style={styles.bodyText}>{lesson.description || "Hãy xem video bài học để nắm bắt kiến thức trọng tâm."}</Text></Card>
           {lesson.materialUrl ? <Button title="Mở tài liệu bài học" variant="ghost" onPress={openMaterial} /> : null}
-          <Button title="Làm quiz bài học" onPress={() => router.push({ pathname: "/learn/[courseId]/lesson/[lessonId]/quiz", params: { courseId, lessonId: selectedLessonId } })} />
         </View>
       )}
       <LessonSheet visible={sheetOpen} onClose={() => setSheetOpen(false)} courseTitle={courseQuery.data.course.title} lessons={courseQuery.data.lessons} selectedLessonId={selectedLessonId} onSelectLesson={selectLesson} chat={chatQuery.data} question={question} onQuestionChange={setQuestion} onSendQuestion={() => chatMutation.mutate()} sending={chatMutation.isPending} />
@@ -190,7 +202,8 @@ function BadgeText({ position, completed }: { position: number; completed: boole
 
 const styles = StyleSheet.create({
   iconButton: { width: 40, height: 40, alignItems: "center", justifyContent: "center", borderRadius: 20, backgroundColor: colors.softIndigo },
-  playerWrap: { borderRadius: radius.md, overflow: "hidden", backgroundColor: "#000" }, video: { width: "100%", height: 220 }, videoPlaceholder: { minHeight: 180, borderRadius: radius.md, backgroundColor: colors.softBlue, alignItems: "center", justifyContent: "center", gap: spacing.sm },
+  playerWrap: { borderRadius: radius.md, overflow: "hidden", backgroundColor: "#000" }, playerError: { borderRadius: radius.md }, video: { width: "100%", height: 220 }, videoPlaceholder: { minHeight: 180, borderRadius: radius.md, backgroundColor: colors.softBlue, alignItems: "center", justifyContent: "center", gap: spacing.sm },
   lessonCopy: { gap: spacing.sm }, lessonBadge: { alignSelf: "flex-start", borderRadius: radius.pill, paddingHorizontal: 10, paddingVertical: 5, backgroundColor: colors.softIndigo }, lessonBadgeDone: { backgroundColor: colors.softGreen }, lessonBadgeText: { color: colors.primaryDark, fontSize: 11, fontWeight: "800" }, title: { color: colors.text, fontSize: 23, fontWeight: "800", lineHeight: 29 }, description: { color: colors.mutedForeground, fontSize: 14, lineHeight: 21 }, muted: { color: colors.mutedForeground, fontSize: 13 },
-  actions: { flexDirection: "row", gap: spacing.sm }, stack: { gap: spacing.md }, bodyText: { color: colors.mutedForeground, fontSize: 14, lineHeight: 21 },
+    headerActions: { flexDirection: "row", alignItems: "center", gap: spacing.xs }, stack: { gap: spacing.md }, bodyText:
+ { color: colors.mutedForeground, fontSize: 14, lineHeight: 21 },
 });

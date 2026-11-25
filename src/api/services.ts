@@ -1,4 +1,5 @@
 import { isAxiosError } from "axios";
+import { createAvatarFormData } from "../utils/avatar-upload";
 import { api } from "./client";
 import type { AiSummary, ApiSuccessResponse, AuthResponse, CartFilters, CartItem, CartResponse, ChangePasswordPayload, ChatSendResponse, ChatSession, CheckoutResult, CreateWatchEventPayload, CurrentUserResponse, EmailOtpDispatchResponse, Enrollment, LearnerCertificate, LearnerDashboard, LearnerPaymentTransactionFilters, LearnerPaymentTransactionListResult, LearningCourse, LearningLesson, MarkAllNotificationsSeenResult, NotificationListFilters, NotificationListResult, PasswordResetRequestResponse, PasswordResetVerifyResponse, PublicCourse, PublicCourseListFilters, PublicCourseListResult, Quiz, QuizAnswerPayload, QuizAttemptResult, QuizAttemptStartResponse, RegisterPushTokenPayload, RegisterUserPayload, RegisterUserResponse, UnreadNotificationCountResult, UpdateProfilePayload, UserProfile, WatchEventResponse } from "./types";
 
@@ -18,15 +19,6 @@ function buildLimitQuery(limit?: number): string {
   return buildQueryString([["limit", Math.min(limit, 20)]]);
 }
 
-function avatarMimeType(fileName: string): string {
-  const extension = fileName.split(".").pop()?.toLowerCase();
-  if (extension === "jpg" || extension === "jpeg") return "image/jpeg";
-  if (extension === "png") return "image/png";
-  if (extension === "webp") return "image/webp";
-  if (extension === "gif") return "image/gif";
-  return "application/octet-stream";
-}
-
 export async function mobileLogin(email: string, password: string) { try { const { data } = await api.post<ApiSuccessResponse<AuthResponse>>("/auth/mobile/login", { email, password }); return data.data; } catch (error) { if (!isAxiosError(error) || ![404, 405].includes(error.response?.status ?? 0)) throw error; const { data } = await api.post<ApiSuccessResponse<AuthResponse>>("/auth/login", { email, password }); return data.data; } }
 export async function mobileLogout(refreshToken: string | null) { if (refreshToken) await api.post("/auth/mobile/logout", { refreshToken }); else await api.post("/auth/logout"); }
 export async function getMe() { const { data } = await api.get<ApiSuccessResponse<UserProfile>>("/users/me"); return data.data; }
@@ -38,7 +30,7 @@ export async function verifyPasswordReset(email: string, otp: string) { const { 
 export async function resetPassword(resetToken: string, newPassword: string) { await api.post("/auth/password-reset/reset", { resetToken, newPassword }); }
 export async function updateMe(payload: UpdateProfilePayload) { const { data } = await api.patch<ApiSuccessResponse<UserProfile>>("/users/me", payload); return data.data; }
 export async function changePassword(payload: ChangePasswordPayload) { await api.patch("/users/me/password", payload); }
-export async function uploadAvatar(uri: string | Blob, fileName = "avatar.jpg") { const formData = new FormData(); if (typeof uri === "string") formData.append("avatar", { uri, name: fileName, type: avatarMimeType(fileName) } as unknown as Blob); else formData.append("avatar", uri, fileName); const { data } = await api.post<ApiSuccessResponse<UserProfile>>("/users/me/avatar", formData); return data.data; }
+export async function uploadAvatar(uri: string | Blob, fileName = "avatar.jpg") { const formData = createAvatarFormData(uri, fileName); const { data } = await api.post<ApiSuccessResponse<UserProfile>>("/users/me/avatar", formData); return data.data; }
 export async function listPublicCourses(filters: PublicCourseListFilters = {}) { const query = buildQueryString([["page", filters.page ? filters.page : undefined], ["limit", filters.limit ? filters.limit : undefined], ["q", filters.q], ["category", filters.category], ["sortBy", filters.sortBy], ["sortOrder", filters.sortOrder]]); const { data } = await api.get<ApiSuccessResponse<PublicCourseListResult>>(`/courses/public${query}`); return data.data; }
 export async function getPublicCourse(courseId: string) { const { data } = await api.get<ApiSuccessResponse<PublicCourse>>(`/courses/public/${encodeURIComponent(courseId)}`); return data.data; }
 export async function listSuggestedCourses(limit?: number) { const { data } = await api.get<ApiSuccessResponse<PublicCourse[]>>(`/courses/public/suggestion${buildLimitQuery(limit)}`); return data.data; }
