@@ -4,7 +4,9 @@ import { Image, StyleSheet, Text, View } from "react-native";
 import { getApiErrorMessage } from "../api/client";
 import { checkoutCart, getCart } from "../api/services";
 import { useAuth } from "../context/auth-context";
+import { PaginationRow } from "../components/catalog/pagination-row";
 import { Alert, Badge, Button, Card, EmptyState, ErrorState, Header, Screen, SectionHeading, Skeleton, formatVnd } from "../components/ui";
+import { useLocalPagination } from "../hooks/use-local-pagination";
 import { colors, spacing } from "../theme";
 
 const CART_REVIEW_LIMIT = 100;
@@ -22,6 +24,7 @@ export default function Checkout() {
     },
   });
   const cart = cartQuery.data;
+  const pagination = useLocalPagination(cartQuery.data?.items ?? []);
 
   return (
     <Screen>
@@ -48,7 +51,7 @@ export default function Checkout() {
           </Card>
           <Card style={styles.card}>
             <Text style={styles.cardTitle}>Khóa học trong đơn</Text>
-            {cart.items.map((item) => (
+            {pagination.visibleItems.map((item) => (
               <View key={item.id} style={styles.courseRow}>
                 {item.course.thumbnail ? <Image source={{ uri: item.course.thumbnail }} style={styles.thumbnail} /> : <View style={[styles.thumbnail, styles.placeholder]} />}
                 <View style={styles.courseCopy}>
@@ -58,6 +61,7 @@ export default function Checkout() {
                 </View>
               </View>
             ))}
+            {pagination.totalPages > 1 ? <PaginationRow page={pagination.page} totalPages={pagination.totalPages} total={pagination.total} onChange={pagination.setPage} /> : null}
           </Card>
           <Card style={styles.card}>
             <Text style={styles.label}>Tổng thanh toán</Text>

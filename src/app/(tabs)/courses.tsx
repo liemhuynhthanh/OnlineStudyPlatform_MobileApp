@@ -8,9 +8,10 @@ import { PaginationRow } from "../../components/catalog/pagination-row";
 import { PublicCourseCard } from "../../components/catalog/public-course-card";
 import { Alert, Button, EmptyState, Header, Screen, SectionHeading, Skeleton } from "../../components/ui";
 import { useAuth } from "../../context/auth-context";
+import { useLocalPagination } from "../../hooks/use-local-pagination";
 import { colors, radius, spacing } from "../../theme";
 
-const CATALOG_LIMIT = 24;
+const CATALOG_LIMIT = 3;
 
 export default function Catalog() {
   const { user } = useAuth();
@@ -30,6 +31,7 @@ export default function Catalog() {
   const hasFilters = Boolean(query || category);
   const isEmpty = !courses.isLoading && !courses.isError && courses.data?.total === 0;
   const recommendations = useQuery({ queryKey: ["recommendations", 8], queryFn: () => listRecommendations(8), enabled: Boolean(user) && isEmpty && hasFilters });
+  const recommendationPagination = useLocalPagination(recommendations.data ?? []);
 
   function clearFilters() {
     setQuery("");
@@ -59,7 +61,7 @@ export default function Catalog() {
       </View>
       {courses.isError ? <Alert tone="danger" title="Không thể tải danh sách khóa học" message="Vui lòng thử lại." actionLabel="Thử lại" onAction={() => void courses.refetch()} /> : null}
       {courses.isLoading ? (
-        <View style={styles.list}><Skeleton height={150} /><Skeleton height={150} /><Skeleton height={150} /><Skeleton height={150} /></View>
+        <View style={styles.list}><Skeleton height={150} /><Skeleton height={150} /><Skeleton height={150} /></View>
       ) : isEmpty ? (
         <>
           <EmptyState title="Chưa tìm thấy khóa học phù hợp" message="Thử một từ khóa khác hoặc xóa bộ lọc để xem thêm lựa chọn." icon="search-outline" actionLabel={hasFilters ? "Xóa bộ lọc" : undefined} onAction={clearFilters} />
@@ -67,7 +69,7 @@ export default function Catalog() {
             <View style={styles.recommendations}>
               <SectionHeading eyebrow="Dành cho bạn" title="Có thể bạn cũng quan tâm" />
               <Text style={styles.recommendationHint}>Gợi ý dựa trên hồ sơ và sở thích học tập của bạn.</Text>
-              {recommendations.isLoading ? <Skeleton height={150} /> : recommendations.data?.length ? <View style={styles.list}>{recommendations.data.map((course) => <PublicCourseCard key={course.id} course={course} onPress={() => router.push({ pathname: "/course/[courseId]", params: { courseId: course.id } })} />)}</View> : <Text style={styles.recommendationHint}>Chưa có gợi ý phù hợp lúc này. Hãy thử xóa bộ lọc để khám phá toàn bộ khóa học.</Text>}
+              {recommendations.isLoading ? <Skeleton height={150} /> : recommendationPagination.total ? <View style={styles.list}>{recommendationPagination.visibleItems.map((course) => <PublicCourseCard key={course.id} course={course} onPress={() => router.push({ pathname: "/course/[courseId]", params: { courseId: course.id } })} />)}{recommendationPagination.totalPages > 1 ? <PaginationRow page={recommendationPagination.page} totalPages={recommendationPagination.totalPages} total={recommendationPagination.total} onChange={recommendationPagination.setPage} /> : null}</View> : <Text style={styles.recommendationHint}>Chưa có gợi ý phù hợp lúc này. Hãy thử xóa bộ lọc để khám phá toàn bộ khóa học.</Text>}
             </View>
           ) : null}
         </>

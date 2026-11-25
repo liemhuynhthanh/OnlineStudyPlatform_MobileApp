@@ -5,7 +5,9 @@ import type { LearnerDashboard } from "../api/types";
 import { getApiErrorMessage } from "../api/client";
 import { getDashboard, listMyCertificates } from "../api/services";
 import { CertificateCard } from "../components/certificates/certificate-card";
+import { PaginationRow } from "../components/catalog/pagination-row";
 import { Alert, EmptyState, ErrorState, Header, Screen, SectionHeading, Skeleton } from "../components/ui";
+import { useLocalPagination } from "../hooks/use-local-pagination";
 import { downloadCertificatePdf } from "../utils/download-certificate";
 import { colors } from "../theme";
 
@@ -31,6 +33,7 @@ export default function Certificates() {
     onSettled: () => setDownloadingId(null),
   });
   const certificates = certificatesQuery.data ?? [];
+  const pagination = useLocalPagination(certificates);
   const issuedCourseIds = new Set(certificates.map((item) => item.courseId));
   const pendingCertificate = dashboardQuery.data?.courses.some((course) => course.status === "completed" && !issuedCourseIds.has(course.courseId)) ?? false;
 
@@ -52,7 +55,8 @@ export default function Certificates() {
         <>
           {pendingCertificate ? <Alert tone="info" title="Chứng chỉ đang được xử lý" message="Chứng chỉ cho khóa học đã hoàn thành đang được xử lý. Màn hình sẽ tự cập nhật." /> : null}
           {downloadError ? <Alert tone="danger" title="Không thể tải chứng chỉ" message={downloadError} /> : null}
-          {certificates.map((item) => <CertificateCard key={item.id} item={item} downloading={downloadingId === item.id} onDownload={() => { if (!download.isPending) download.mutate(item.id); }} />)}
+          {pagination.visibleItems.map((item) => <CertificateCard key={item.id} item={item} downloading={downloadingId === item.id} onDownload={() => { if (!download.isPending) download.mutate(item.id); }} />)}
+          {pagination.totalPages > 1 ? <PaginationRow page={pagination.page} totalPages={pagination.totalPages} total={pagination.total} onChange={pagination.setPage} /> : null}
         </>
       )}
     </Screen>

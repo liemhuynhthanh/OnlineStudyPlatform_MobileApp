@@ -2,7 +2,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
 import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import type { ChatSession, LearningCourse } from "../../api/types";
+import { PaginationRow } from "../catalog/pagination-row";
 import { Alert, Button, SegmentTabs } from "../ui";
+import { useLocalPagination } from "../../hooks/use-local-pagination";
 import { colors, radius, spacing } from "../../theme";
 
 type SheetTab = "lessons" | "chat";
@@ -10,6 +12,7 @@ type SheetTab = "lessons" | "chat";
 export function LessonSheet({ visible, onClose, courseTitle, lessons, selectedLessonId, onSelectLesson, chat, question, onQuestionChange, onSendQuestion, sending }: { visible: boolean; onClose: () => void; courseTitle: string; lessons: LearningCourse["lessons"]; selectedLessonId: string | null; onSelectLesson: (lessonId: string) => void; chat?: ChatSession; question: string; onQuestionChange: (value: string) => void; onSendQuestion: () => void; sending?: boolean }) {
   const [tab, setTab] = useState<SheetTab>("lessons");
   const canChat = chat?.isAiAvailable ?? false;
+  const pagination = useLocalPagination(lessons);
 
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
@@ -26,7 +29,7 @@ export function LessonSheet({ visible, onClose, courseTitle, lessons, selectedLe
         <SegmentTabs value={tab} onChange={setTab} options={[{ value: "lessons", label: "Bài học", icon: "list-outline" }, { value: "chat", label: "Hỏi AI", icon: "chatbubble-outline" }]} />
         {tab === "lessons" ? (
           <ScrollView style={styles.body} showsVerticalScrollIndicator={false}>
-            {lessons.map((lesson) => {
+            {pagination.visibleItems.map((lesson) => {
               const active = lesson.id === selectedLessonId;
               return (
                 <Pressable key={lesson.id} accessibilityRole="button" disabled={!lesson.isAccessible} onPress={() => onSelectLesson(lesson.id)} style={({ pressed }) => [styles.lessonRow, active && styles.lessonActive, pressed && styles.rowPressed, !lesson.isAccessible && styles.lessonLocked]}>
@@ -41,6 +44,7 @@ export function LessonSheet({ visible, onClose, courseTitle, lessons, selectedLe
                 </Pressable>
               );
             })}
+            {pagination.totalPages > 1 ? <PaginationRow page={pagination.page} totalPages={pagination.totalPages} total={pagination.total} onChange={pagination.setPage} /> : null}
           </ScrollView>
         ) : (
           <View style={styles.chatBody}>

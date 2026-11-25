@@ -1,7 +1,9 @@
 import { Ionicons } from "@expo/vector-icons";
 import { StyleSheet, Text, View } from "react-native";
 import type { LearnerDashboardActivity, LearnerDashboardCourse, LearnerDashboard } from "../../api/types";
+import { PaginationRow } from "../catalog/pagination-row";
 import { Badge, Card, EmptyState, StudyCourseCard, formatDate } from "../ui";
+import { useLocalPagination } from "../../hooks/use-local-pagination";
 import { colors, radius, spacing } from "../../theme";
 
 type StatStripItem = {
@@ -58,14 +60,15 @@ export function StudyCourseList({ courses, onPressCourse }: { courses: LearnerDa
 }
 
 export function ActivityTimeline({ activities }: { activities: LearnerDashboardActivity[] }) {
-  if (!activities.length) return <Card style={styles.activityCard}><Text style={styles.emptyActivity}>Hoạt động học tập của bạn sẽ xuất hiện tại đây.</Text></Card>;
+  const pagination = useLocalPagination(activities);
+  if (!pagination.total) return <Card style={styles.activityCard}><Text style={styles.emptyActivity}>Hoạt động học tập của bạn sẽ xuất hiện tại đây.</Text></Card>;
   return (
     <Card style={styles.activityCard}>
-      {activities.slice(0, 5).map((activity, index) => (
+      {pagination.visibleItems.map((activity, index) => (
         <View key={activity.id} style={styles.activityRow}>
           <View style={styles.timeline}>
             <View style={[styles.timelineDot, index === 0 && styles.timelineDotActive]} />
-            {index < Math.min(activities.length, 5) - 1 ? <View style={styles.timelineLine} /> : null}
+            {index < pagination.visibleItems.length - 1 ? <View style={styles.timelineLine} /> : null}
           </View>
           <View style={styles.activityCopy}>
             <View style={styles.activityHeading}>
@@ -76,6 +79,7 @@ export function ActivityTimeline({ activities }: { activities: LearnerDashboardA
           </View>
         </View>
       ))}
+      {pagination.totalPages > 1 ? <PaginationRow page={pagination.page} totalPages={pagination.totalPages} total={pagination.total} onChange={pagination.setPage} /> : null}
     </Card>
   );
 }

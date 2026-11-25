@@ -5,9 +5,11 @@ import { useState } from "react";
 import { Alert as NativeAlert, Image, StyleSheet, Text, View } from "react-native";
 import { getApiErrorMessage } from "../../api/client";
 import { addToCart, enrollCourse, getPublicCourse, listLatestCourses, listSuggestedCourses } from "../../api/services";
+import { PaginationRow } from "../catalog/pagination-row";
 import { PublicCourseCard } from "../catalog/public-course-card";
 import { Alert, Badge, Button, Card, Header, Screen, SectionHeading, Skeleton, formatDate, formatVnd } from "../ui";
 import { useAuth } from "../../context/auth-context";
+import { useLocalPagination } from "../../hooks/use-local-pagination";
 import { colors, radius, spacing } from "../../theme";
 
 export function CourseDetailContent({ courseId }: { courseId: string }) {
@@ -49,6 +51,13 @@ export function CourseDetailContent({ courseId }: { courseId: string }) {
     },
     onError: (error) => NativeAlert.alert("Không thể thêm vào giỏ hàng", getApiErrorMessage(error)),
   });
+  const currentCourseId = courseQuery.data?.id;
+  const lessons = [...(courseQuery.data?.lessons ?? [])].sort((a, b) => a.position - b.position);
+  const suggestions = (suggestionsQuery.data ?? []).filter((item) => item.id !== currentCourseId);
+  const latestCourses = (latestQuery.data ?? []).filter((item) => item.id !== currentCourseId);
+  const lessonPagination = useLocalPagination(lessons);
+  const suggestionPagination = useLocalPagination(suggestions);
+  const latestPagination = useLocalPagination(latestCourses);
 
   if (courseQuery.isLoading) return <Screen><Header canGoBack /><Skeleton height={220} /><Skeleton height={70} /><Skeleton height={120} /></Screen>;
   if (courseQuery.isError || !courseQuery.data) {
@@ -57,11 +66,8 @@ export function CourseDetailContent({ courseId }: { courseId: string }) {
   }
 
   const course = courseQuery.data;
-  const lessons = [...(course.lessons ?? [])].sort((a, b) => a.position - b.position);
   const isLearner = user?.role === "Learner";
   const isPaid = course.price > 0;
-  const suggestions = (suggestionsQuery.data ?? []).filter((item) => item.id !== course.id).slice(0, 4);
-  const latestCourses = (latestQuery.data ?? []).filter((item) => item.id !== course.id).slice(0, 4);
   const pending = enroll.isPending || addCart.isPending;
 
   return (
@@ -98,21 +104,24 @@ export function CourseDetailContent({ courseId }: { courseId: string }) {
       <Text style={styles.description}>{course.description}</Text>
       <SectionHeading title="Danh sách bài học" />
       {lessons.length ? (
-        <Card style={styles.lessonCard}>
-          {lessons.map((lesson, index) => (
-            <View key={lesson.id} style={styles.lessonRow}>
-              <View style={styles.lessonNumber}><Text style={styles.lessonNumberText}>{String(index + 1).padStart(2, "0")}</Text></View>
-              <Text style={styles.lessonTitle}>{lesson.title}</Text>
-            </View>
-          ))}
-        </Card>
+        <>
+          <Card style={styles.lessonCard}>
+            {lessonPagination.visibleItems.map((lesson) => (
+              <View key={lesson.id} style={styles.lessonRow}>
+                <View style={styles.lessonNumber}><Text style={styles.lessonNumberText}>{String(lesson.position).padStart(2, "0")}</Text></View>
+                <Text style={styles.lessonTitle}>{lesson.title}</Text>
+              </View>
+            ))}
+          </Card>
+          {lessonPagination.totalPages > 1 ? <PaginationRow page={lessonPagination.page} totalPages={lessonPagination.totalPages} total={lessonPagination.total} onChange={lessonPagination.setPage} /> : null}
+        </>
       ) : <Text style={styles.description}>Danh sách bài học sẽ được cập nhật sau.</Text>}
       <SectionHeading eyebrow="Gợi ý dành cho bạn" title="Có thể bạn cũng quan tâm" />
       <Text style={styles.sectionHint}>Những khóa học được chọn theo hành trình học tập của bạn.</Text>
-      {suggestionsQuery.isLoading ? <Skeleton height={150} /> : suggestions.length ? <View style={styles.list}>{suggestions.map((item) => <PublicCourseCard key={item.id} course={item} onPress={() => router.push({ pathname: "/course/[courseId]", params: { courseId: item.id } })} />)}</View> : <Text style={styles.sectionHint}>Chưa có gợi ý phù hợp lúc này.</Text>}
+      {suggestionsQuery.isLoading ? <Skeleton height={150} /> : suggestionPagination.total ? <View style={styles.list}>{suggestionPagination.visibleItems.map((item) => <PublicCourseCard key={item.id} course={item} onPress={() => router.push({ pathname: "/course/[courseId]", params: { courseId: item.id } })} />)}{suggestionPagination.totalPages > 1 ? <PaginationRow page={suggestionPagination.page} totalPages={suggestionPagination.totalPages} total={suggestionPagination.total} onChange={suggestionPagination.setPage} /> : null}</View> : <Text style={styles.sectionHint}>Chưa có gợi ý phù hợp lúc này.</Text>}
       <SectionHeading eyebrow="Khóa học mới nhất" title="Khám phá thêm" />
       <Text style={styles.sectionHint}>Những khóa học vừa được cập nhật.</Text>
-      {latestQuery.isLoading ? <Skeleton height={150} /> : latestCourses.length ? <View style={styles.list}>{latestCourses.map((item) => <PublicCourseCard key={item.id} course={item} onPress={() => router.push({ pathname: "/course/[courseId]", params: { courseId: item.id } })} />)}</View> : <Text style={styles.sectionHint}>Chưa có khóa học mới nhất.</Text>}
+      {latestQuery.isLoading ? <Skeleton height={150} /> : latestPagination.total ? <View style={styles.list}>{latestPagination.visibleItems.map((item) => <PublicCourseCard key={item.id} course={item} onPress={() => router.push({ pathname: "/course/[courseId]", params: { courseId: item.id } })} />)}{latestPagination.totalPages > 1 ? <PaginationRow page={latestPagination.page} totalPages={latestPagination.totalPages} total={latestPagination.total} onChange={latestPagination.setPage} /> : null}</View> : <Text style={styles.sectionHint}>Chưa có khóa học mới nhất.</Text>}
     </Screen>
   );
 }
