@@ -32,7 +32,7 @@ export default function Cart() {
 
   return (
     <Screen>
-      <Header title="Giỏ hàng" canGoBack fallbackHref="/(tabs)/courses" />
+      <Header canGoBack fallbackHref="/(tabs)/courses" />
       <SectionHeading eyebrow="Thanh toán" title="Giỏ hàng của tôi" />
       {cartQuery.isLoading ? (
         <>

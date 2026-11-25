@@ -47,7 +47,7 @@ export default function SignUp() {
 
   return (
     <Screen>
-      <Header title="Đăng ký" canGoBack fallbackHref="/sign-in" />
+      <Header canGoBack fallbackHref="/sign-in" />
       <KeyboardAvoidingView behavior="padding" style={styles.container}>
         <Card style={styles.card}>
           <Text style={styles.title}>Tạo tài khoản</Text>

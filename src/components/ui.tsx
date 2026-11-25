@@ -20,7 +20,7 @@ export function Screen({ children, scroll = true }: { children: ReactNode; scrol
   );
 }
 
-export function Header({ title, canGoBack = false, fallbackHref = "/(tabs)", right }: { title?: string; canGoBack?: boolean; fallbackHref?: string; right?: ReactNode }) {
+export function Header({ canGoBack = false, fallbackHref = "/(tabs)", right }: { canGoBack?: boolean; fallbackHref?: string; right?: ReactNode }) {
   function handleBack() {
     if (router.canGoBack()) {
       router.back();
@@ -42,7 +42,6 @@ export function Header({ title, canGoBack = false, fallbackHref = "/(tabs)", rig
           <Text style={styles.brandText} numberOfLines={1}>E-Learning</Text>
         </View>
       </View>
-      <View style={styles.headerCenter}><Text style={styles.headerTitle} numberOfLines={1}>{title ?? ""}</Text></View>
       {right ?? <View style={styles.headerSpacer} />}
     </View>
   );
@@ -137,7 +136,7 @@ export function formatDate(value: string) { return new Date(value).toLocaleDateS
 
 const styles = StyleSheet.create({
   safe: { flex: 1, backgroundColor: colors.background }, content: { width: "100%", maxWidth: 720, alignSelf: "center", padding: spacing.md, gap: spacing.md, paddingBottom: 42 },
-  header: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: spacing.md, backgroundColor: colors.background }, headerLeading: { flexDirection: "row", alignItems: "center", gap: spacing.xs, flexShrink: 1, minWidth: 0 }, headerCenter: { flex: 1, minWidth: 0, alignItems: "center", paddingHorizontal: spacing.sm }, headerTitle: { maxWidth: "100%", textAlign: "center", fontSize: 16, lineHeight: 20, fontWeight: "700", color: colors.ink }, headerSpacer: { width: 40 }, iconButton: { minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }, brand: { flexDirection: "row", alignItems: "center", gap: 6, flexShrink: 1, minWidth: 0 }, brandMark: { width: 28, height: 28, alignItems: "center", justifyContent: "center", borderRadius: 9, backgroundColor: colors.primary }, brandText: { color: colors.ink, fontSize: 14, lineHeight: 18, fontWeight: "800" },
+  header: { minHeight: 56, flexDirection: "row", alignItems: "center", justifyContent: "space-between", paddingHorizontal: spacing.md, backgroundColor: colors.background }, headerLeading: { flexDirection: "row", alignItems: "center", gap: spacing.xs, flexShrink: 1, minWidth: 0 }, headerSpacer: { width: 40 }, iconButton: { minWidth: 44, minHeight: 44, alignItems: "center", justifyContent: "center" }, brand: { flexDirection: "row", alignItems: "center", gap: 6, flexShrink: 1, minWidth: 0 }, brandMark: { width: 28, height: 28, alignItems: "center", justifyContent: "center", borderRadius: 9, backgroundColor: colors.primary }, brandText: { color: colors.ink, fontSize: 14, lineHeight: 18, fontWeight: "800" },
   button: { minHeight: 48, borderRadius: radius.md, alignItems: "center", justifyContent: "center", paddingHorizontal: spacing.md, backgroundColor: colors.primary }, buttonSecondary: { backgroundColor: colors.softBlue, borderWidth: 1, borderColor: "#D8D9FF" }, buttonGhost: { backgroundColor: "transparent" }, buttonDanger: { backgroundColor: colors.danger }, buttonLight: { backgroundColor: colors.white }, buttonDisabled: { opacity: 0.5 }, buttonPressed: { opacity: 0.8 }, buttonText: { color: colors.white, fontSize: 15, fontWeight: "700" }, buttonTextSecondary: { color: colors.primary }, buttonTextLight: { color: colors.navy },
   field: { gap: spacing.xs }, label: { color: colors.ink, fontSize: 14, fontWeight: "600" }, input: { minHeight: 52, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, paddingHorizontal: spacing.md, color: colors.ink, fontSize: 16 },
   card: { borderRadius: radius.lg, padding: spacing.md, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, gap: spacing.sm }, cardPressed: { opacity: 0.88 }, badge: { alignSelf: "flex-start", maxWidth: "100%", flexShrink: 1, borderRadius: radius.pill, paddingHorizontal: 9, paddingVertical: 5, backgroundColor: colors.softIndigo }, badgeGreen: { backgroundColor: colors.softGreen }, badgeOrange: { backgroundColor: colors.softOrange }, badgeMuted: { backgroundColor: colors.border }, badgeText: { color: colors.primaryDark, fontSize: 11, lineHeight: 14, fontWeight: "800", textTransform: "uppercase", letterSpacing: 0.4 },

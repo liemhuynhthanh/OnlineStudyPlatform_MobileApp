@@ -10,7 +10,7 @@ export default function MyLearning() {
   const enrollments = useQuery({ queryKey: ["myEnrollments"], queryFn: listMyEnrollments });
   return (
     <Screen>
-      <Header title="Khóa học của tôi" canGoBack={false} />
+      <Header canGoBack={false} />
       <View style={styles.intro}>
         <Text style={styles.eyebrow}>Lộ trình học tập</Text>
         <Text style={styles.title}>Khóa học của tôi</Text>

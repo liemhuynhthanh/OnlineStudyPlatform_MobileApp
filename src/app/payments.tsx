@@ -28,7 +28,7 @@ export default function PaymentHistory() {
 
   return (
     <Screen>
-      <Header title="Lịch sử thanh toán" canGoBack fallbackHref="/(tabs)/my-learning" />
+      <Header canGoBack fallbackHref="/(tabs)/my-learning" />
       <SectionHeading eyebrow="Học tập" title="Lịch sử thanh toán" />
       <PaymentStatusFilter value={status} onChange={handleStatusChange} />
       {historyQuery.isLoading ? (

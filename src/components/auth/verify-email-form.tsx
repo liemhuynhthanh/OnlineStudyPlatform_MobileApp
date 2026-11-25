@@ -66,7 +66,7 @@ export function VerifyEmailForm({ email, delivery }: { email: string; delivery: 
 
   return (
     <Screen>
-      <Header title="Xác thực email" canGoBack fallbackHref="/sign-in" />
+      <Header canGoBack fallbackHref="/sign-in" />
       <KeyboardAvoidingView behavior="padding" style={styles.container}>
         <Card style={styles.card}>
           <Text style={styles.title}>Xác thực email</Text>

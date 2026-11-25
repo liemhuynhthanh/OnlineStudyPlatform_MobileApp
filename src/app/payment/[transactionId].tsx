@@ -48,9 +48,9 @@ export default function PaymentCheckout() {
     ]);
   }
 
-  if (transactionQuery.isLoading) return <Screen><Header title="Thanh toán" canGoBack fallbackHref="/cart" /><Skeleton height={180} /><Skeleton height={260} /></Screen>;
+  if (transactionQuery.isLoading) return <Screen><Header canGoBack fallbackHref="/cart" /><Skeleton height={180} /><Skeleton height={260} /></Screen>;
   if (transactionQuery.isError || !transactionQuery.data) {
-    return <Screen><Header title="Thanh toán" canGoBack fallbackHref="/payments" /><Card style={styles.card}><Text style={styles.errorTitle}>Không thể tải giao dịch</Text><Text style={styles.errorBody}>Giao dịch không tồn tại, đã bị xóa hoặc bạn không có quyền truy cập.</Text><Button title="Xem lịch sử thanh toán" onPress={() => router.replace("/payments")} /></Card></Screen>;
+    return <Screen><Header canGoBack fallbackHref="/payments" /><Card style={styles.card}><Text style={styles.errorTitle}>Không thể tải giao dịch</Text><Text style={styles.errorBody}>Giao dịch không tồn tại, đã bị xóa hoặc bạn không có quyền truy cập.</Text><Button title="Xem lịch sử thanh toán" onPress={() => router.replace("/payments")} /></Card></Screen>;
   }
 
   const transaction = transactionQuery.data;
@@ -60,7 +60,7 @@ export default function PaymentCheckout() {
 
   return (
     <Screen>
-      <Header title="Thanh toán" canGoBack fallbackHref="/payments" />
+      <Header canGoBack fallbackHref="/payments" />
       <SectionHeading eyebrow="Thanh toán" title="Chuyển khoản để mở khóa khóa học" />
       <Card style={styles.card}>
         <View style={styles.row}><Text style={styles.label}>Số tiền cần thanh toán</Text><Text style={styles.amount}>{formatVnd(transaction.amount)}</Text></View>

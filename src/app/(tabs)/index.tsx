@@ -37,7 +37,7 @@ export default function LandingOrDashboard() {
   if (!user) {
     return (
       <Screen>
-        <Header title="E-Learning Learner" />
+        <Header />
         <View style={styles.hero}>
           <View style={styles.heroIcon}><Ionicons name="sparkles-outline" size={28} color={colors.primary} /></View>
           <Text style={styles.heroEyebrow}>Học tập E-Learning</Text>
