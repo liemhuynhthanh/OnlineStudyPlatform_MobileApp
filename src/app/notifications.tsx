@@ -54,7 +54,6 @@ export default function Notifications() {
   return (
     <Screen>
       <Header
-        title="Thông báo"
         canGoBack
         fallbackHref="/(tabs)/my-learning"
         right={<Text style={styles.unread} numberOfLines={1}>{unreadCount > 0 ? `${unreadCount} thông báo chưa xem` : "Không có thông báo chưa xem"}</Text>}

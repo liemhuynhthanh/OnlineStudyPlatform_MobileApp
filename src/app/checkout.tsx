@@ -25,7 +25,7 @@ export default function Checkout() {
 
   return (
     <Screen>
-      <Header title="Xác nhận đơn hàng" canGoBack fallbackHref="/cart" />
+      <Header canGoBack fallbackHref="/cart" />
       <SectionHeading eyebrow="Thanh toán" title="Kiểm tra đơn hàng" />
       <Text style={styles.description}>Kiểm tra khóa học và thông tin tài khoản. Bạn sẽ chuyển sang màn hình QR sau khi xác nhận.</Text>
       {cartQuery.isLoading ? (

@@ -6,7 +6,7 @@ import { ProfileForm } from "../../components/profile/profile-form";
 export default function Profile() {
   return (
     <Screen>
-      <Header title="Hồ sơ" canGoBack={false} />
+      <Header canGoBack={false} />
       <SectionHeading eyebrow="Tài khoản" title="Thông tin learner" />
       <ProfileForm />
       <SectionHeading eyebrow="Tiện ích" title="Dịch vụ học tập" />

@@ -69,11 +69,11 @@ export default function QuizScreen() {
   if (quizQuery.isLoading) return <Screen scroll={false}><LoadingState /></Screen>;
   if (quizQuery.isError || !quizQuery.data) return <Screen scroll={false}><ErrorState message="Không tải được quiz." onRetry={() => void quizQuery.refetch()} /></Screen>;
   const quiz = activeQuiz ?? quizQuery.data.quiz;
-  if (!quiz) return <Screen><Header title="Quiz" canGoBack fallbackHref="/(tabs)/courses" /><EmptyState title="Chưa có quiz" message="Bài học này chưa có quiz." icon="help-circle-outline" /></Screen>;
+  if (!quiz) return <Screen><Header canGoBack fallbackHref="/(tabs)/courses" /><EmptyState title="Chưa có quiz" message="Bài học này chưa có quiz." icon="help-circle-outline" /></Screen>;
 
   return (
     <Screen>
-      <Header title={quiz.title} canGoBack fallbackHref="/(tabs)/courses" />
+      <Header canGoBack fallbackHref="/(tabs)/courses" />
       {errorMessage ? <Alert tone="danger" title="Có lỗi xảy ra" message={errorMessage} /> : null}
       <QuizWorkspace
         quiz={quiz}

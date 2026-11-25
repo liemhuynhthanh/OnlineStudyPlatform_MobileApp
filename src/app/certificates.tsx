@@ -36,7 +36,7 @@ export default function Certificates() {
 
   return (
     <Screen>
-      <Header title="Chứng chỉ của tôi" canGoBack fallbackHref="/(tabs)/my-learning" />
+      <Header canGoBack fallbackHref="/(tabs)/my-learning" />
       <SectionHeading eyebrow="Học tập" title="Chứng chỉ của tôi" />
       <Text style={styles.description}>Xem lại các chứng chỉ đã được cấp sau khi hoàn thành khóa học.</Text>
       {certificatesQuery.isLoading ? (

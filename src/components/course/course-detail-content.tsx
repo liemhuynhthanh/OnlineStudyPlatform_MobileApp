@@ -50,10 +50,10 @@ export function CourseDetailContent({ courseId }: { courseId: string }) {
     onError: (error) => NativeAlert.alert("Không thể thêm vào giỏ hàng", getApiErrorMessage(error)),
   });
 
-  if (courseQuery.isLoading) return <Screen><Header title="Chi tiết khóa học" canGoBack /><Skeleton height={220} /><Skeleton height={70} /><Skeleton height={120} /></Screen>;
+  if (courseQuery.isLoading) return <Screen><Header canGoBack /><Skeleton height={220} /><Skeleton height={70} /><Skeleton height={120} /></Screen>;
   if (courseQuery.isError || !courseQuery.data) {
     const notFound = isAxiosError(courseQuery.error) && courseQuery.error.response?.status === 404;
-    return <Screen><Header title="Chi tiết khóa học" canGoBack /><Card style={styles.notFound}><Text style={styles.notFoundTitle}>{notFound ? "Không tìm thấy khóa học" : "Không tải được khóa học"}</Text><Text style={styles.notFoundBody}>{notFound ? "Khóa học không tồn tại hoặc chưa được xuất bản." : "Không thể kết nối. Vui lòng thử lại."}</Text><Button title="Quay lại danh sách khóa học" onPress={() => router.replace("/(tabs)/courses")} /></Card></Screen>;
+    return <Screen><Header canGoBack /><Card style={styles.notFound}><Text style={styles.notFoundTitle}>{notFound ? "Không tìm thấy khóa học" : "Không tải được khóa học"}</Text><Text style={styles.notFoundBody}>{notFound ? "Khóa học không tồn tại hoặc chưa được xuất bản." : "Không thể kết nối. Vui lòng thử lại."}</Text><Button title="Quay lại danh sách khóa học" onPress={() => router.replace("/(tabs)/courses")} /></Card></Screen>;
   }
 
   const course = courseQuery.data;
@@ -66,7 +66,7 @@ export function CourseDetailContent({ courseId }: { courseId: string }) {
 
   return (
     <Screen>
-      <Header title="Chi tiết khóa học" canGoBack />
+      <Header canGoBack />
       {course.thumbnail ? <Image source={{ uri: course.thumbnail }} style={styles.hero} /> : <View style={[styles.hero, styles.heroPlaceholder]}><Text style={styles.placeholderText}>E</Text></View>}
       <View style={styles.headerCopy}>
         <Badge>{course.category}</Badge>

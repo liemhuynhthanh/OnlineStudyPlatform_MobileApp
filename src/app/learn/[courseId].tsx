@@ -146,13 +146,13 @@ export default function LearningPlayer() {
 
   if (courseQuery.isLoading) return <Screen scroll={false}><LoadingState /></Screen>;
   if (courseQuery.isError || !courseQuery.data) return <Screen scroll={false}><ErrorState message="Không tải được nội dung học." onRetry={() => void courseQuery.refetch()} /></Screen>;
-  if (!selectedLessonId) return <Screen><Header title="Bài học" canGoBack fallbackHref="/(tabs)/courses" /><Alert title="Chưa có bài học" message="Khóa học này chưa có bài học nào có thể truy cập." /></Screen>;
+  if (!selectedLessonId) return <Screen><Header canGoBack fallbackHref="/(tabs)/courses" /><Alert title="Chưa có bài học" message="Khóa học này chưa có bài học nào có thể truy cập." /></Screen>;
   if (lessonQuery.isLoading) return <Screen scroll={false}><LoadingState /></Screen>;
   if (lessonQuery.isError || !lesson) return <Screen scroll={false}><ErrorState message="Không tải được bài học." onRetry={() => void lessonQuery.refetch()} /></Screen>;
 
   return (
     <Screen>
-      <Header title={courseQuery.data.course.title} canGoBack fallbackHref="/(tabs)/courses" right={
+      <Header canGoBack fallbackHref="/(tabs)/courses" right={
         <View style={styles.headerActions}>
           <Pressable accessibilityRole="button" accessibilityLabel="Danh sách bài học" hitSlop={8} onPress={() => setSheetOpen(true)} style={styles.iconButton}><Ionicons name="list-outline" size={22} color={colors.primary} /></Pressable>
           {quizQuery.data?.quiz ? <Pressable accessibilityRole="button" accessibilityLabel="Làm quiz bài học" hitSlop={8} onPress={() => router.push({ pathname: "/learn/[courseId]/lesson/[lessonId]/quiz", params: { courseId, lessonId: selectedLessonId } })} style={styles.iconButton}><Ionicons name="help-circle-outline" size={22} color={colors.primary} /></Pressable> : null}

@@ -43,7 +43,7 @@ export default function Catalog() {
 
   return (
     <Screen>
-      <Header title="Khám phá" />
+      <Header />
       <View style={styles.hero}>
         <Text style={styles.eyebrow}>Thư viện học tập</Text>
         <Text style={styles.heroTitle}>Tìm điều bạn muốn biết sâu hơn.</Text>
