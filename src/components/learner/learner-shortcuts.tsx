@@ -19,13 +19,12 @@ const SHORTCUTS: Shortcut[] = [
 
 function ShortcutCard({ shortcut }: { shortcut: Shortcut }) {
   return (
-    <Pressable accessibilityRole="button" accessibilityLabel={shortcut.label} onPress={() => router.push(shortcut.href as Href)} style={({ pressed }) => [styles.shortcut, pressed && styles.pressed]}>
+    <Pressable accessibilityRole="button" accessibilityLabel={shortcut.label} accessibilityHint={shortcut.hint} onPress={() => router.push(shortcut.href as Href)} style={({ pressed }) => [styles.shortcut, pressed && styles.pressed]}>
       <View style={styles.icon}><Ionicons name={shortcut.icon} size={21} color={colors.primary} /></View>
       <View style={styles.copy}>
-        <Text style={styles.label} numberOfLines={1}>{shortcut.label}</Text>
-        <Text style={styles.hint} numberOfLines={1}>{shortcut.hint}</Text>
+        <Text style={styles.label} numberOfLines={2}>{shortcut.label}</Text>
+        <Text style={styles.hint} numberOfLines={2}>{shortcut.hint}</Text>
       </View>
-      <Ionicons name="chevron-forward" size={17} color={colors.muted} />
     </Pressable>
   );
 }
@@ -48,10 +47,10 @@ export function LearnerShortcuts() {
 const styles = StyleSheet.create({
   container: { gap: spacing.sm },
   row: { flexDirection: "row", gap: spacing.sm },
-  shortcut: { flex: 1, minWidth: 0, flexDirection: "row", alignItems: "center", gap: spacing.sm, padding: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
+  shortcut: { flex: 1, minWidth: 0, minHeight: 112, alignItems: "flex-start", gap: spacing.sm, padding: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface },
   pressed: { opacity: 0.75 },
-  icon: { width: 38, height: 38, alignItems: "center", justifyContent: "center", borderRadius: 12, backgroundColor: colors.softBlue },
-  copy: { flex: 1, minWidth: 0, gap: 2 },
-  label: { color: colors.text, fontSize: 14, fontWeight: "800" },
-  hint: { color: colors.mutedForeground, fontSize: 11 },
+  icon: { width: 40, height: 40, alignItems: "center", justifyContent: "center", borderRadius: 13, backgroundColor: colors.softBlue },
+  copy: { alignSelf: "stretch", gap: 2 },
+  label: { color: colors.text, fontSize: 15, lineHeight: 20, fontWeight: "800" },
+  hint: { color: colors.mutedForeground, fontSize: 12, lineHeight: 16 },
 });

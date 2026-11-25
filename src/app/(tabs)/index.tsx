@@ -7,7 +7,7 @@ import { getUnreadNotificationCount, listLatestCourses, getDashboard } from "../
 import { PublicCourseCard } from "../../components/catalog/public-course-card";
 import { LearnerShortcuts } from "../../components/learner/learner-shortcuts";
 import { ActivityTimeline, StudyCourseList, StudyStatsGrid } from "../../components/study/dashboard-cards";
-import { Alert, Button, EmptyState, ErrorState, Header, LoadingState, Screen, SectionHeading, Skeleton, formatDate } from "../../components/ui";
+import { Alert, Button, EmptyState, ErrorState, Header, LoadingState, Screen, SectionHeading, Skeleton } from "../../components/ui";
 import { useAuth } from "../../context/auth-context";
 import { colors, radius, spacing } from "../../theme";
 
@@ -61,14 +61,7 @@ export default function LandingOrDashboard() {
   const data = dashboard.data;
   return (
     <Screen>
-      <Header title="Tổng quan học tập" right={<View style={styles.headerActions}><Pressable accessibilityRole="button" accessibilityLabel="Thông báo" hitSlop={8} onPress={() => router.push("/notifications")} style={styles.iconButton}>{(unread.data?.count ?? 0) > 0 ? <View style={styles.unreadDot} /> : null}<Ionicons name="notifications-outline" size={21} color={colors.primary} /></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Đăng xuất" disabled={signingOut} hitSlop={8} onPress={confirmSignOut} style={styles.iconButton}><Ionicons name="log-out-outline" size={21} color={colors.danger} /></Pressable></View>} />
-      <View style={styles.welcome}>
-        <View style={styles.avatar}><Text style={styles.avatarText}>{user.name?.slice(0, 1).toUpperCase() ?? "H"}</Text></View>
-        <View style={styles.welcomeCopy}>
-          <Text style={styles.welcomeLabel}>{formatDate(new Date().toISOString())}</Text>
-          <Text style={styles.welcomeName}>Xin chào, {user.name ?? "Học viên"}</Text>
-        </View>
-      </View>
+      <Header right={<View style={styles.headerActions}><Pressable accessibilityRole="button" accessibilityLabel="Thông báo" hitSlop={8} onPress={() => router.push("/notifications")} style={styles.iconButton}>{(unread.data?.count ?? 0) > 0 ? <View style={styles.unreadDot} /> : null}<Ionicons name="notifications-outline" size={21} color={colors.primary} /></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Đăng xuất" disabled={signingOut} hitSlop={8} onPress={confirmSignOut} style={styles.iconButton}><Ionicons name="log-out-outline" size={21} color={colors.danger} /></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Hồ sơ" hitSlop={8} onPress={() => router.push("/(tabs)/profile")} style={styles.iconButton}><Ionicons name="person-circle-outline" size={21} color={colors.primary} /></Pressable></View>} />
       <StudyStatsGrid summary={data.summary} />
       <SectionHeading eyebrow="Tiện ích" title="Dịch vụ học tập" />
       <LearnerShortcuts />
@@ -89,12 +82,6 @@ const styles = StyleSheet.create({
   heroActions: { flexDirection: "row", flexWrap: "wrap", gap: spacing.sm, marginTop: spacing.sm },
   list: { gap: spacing.sm },
   headerActions: { flexDirection: "row", alignItems: "center", gap: spacing.xs },
-  iconButton: { width: 38, height: 38, alignItems: "center", justifyContent: "center", borderRadius: 19, backgroundColor: colors.surface },
-  unreadDot: { position: "absolute", top: 6, right: 6, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.danger },
-  welcome: { flexDirection: "row", alignItems: "center", gap: spacing.md, paddingTop: spacing.sm },
-  avatar: { width: 46, height: 46, borderRadius: radius.pill, backgroundColor: colors.primary, alignItems: "center", justifyContent: "center" },
-  avatarText: { color: colors.white, fontSize: 20, fontWeight: "800" },
-  welcomeCopy: { flex: 1, gap: 2 },
-  welcomeLabel: { color: colors.muted, fontSize: 12 },
-  welcomeName: { color: colors.ink, fontSize: 18, fontWeight: "800" },
+  iconButton: { width: 44, height: 44, alignItems: "center", justifyContent: "center", borderRadius: 22, backgroundColor: colors.surface },
+  unreadDot: { position: "absolute", top: 8, right: 8, width: 8, height: 8, borderRadius: 4, backgroundColor: colors.danger },
 });
