@@ -94,11 +94,8 @@ export function ProfileForm() {
     <KeyboardAvoidingView behavior="padding" style={styles.container}>
       <Card style={styles.card}>
         <Text style={styles.title}>Hồ sơ học viên</Text>
-        {profileQuery.isLoading ? <Skeleton height={112} /> : (
+        {profileQuery.isLoading ? <Skeleton height={160} /> : (
           <View style={styles.identity}>
-            <Pressable accessibilityRole="button" accessibilityLabel="Đổi ảnh đại diện" disabled={upload.isPending} onPress={() => void pickAvatar()} style={({ pressed }) => [styles.avatarButton, pressed && styles.pressed]}>
-              {avatarUri ? <Image source={{ uri: avatarUri }} style={styles.avatar} /> : <View style={[styles.avatar, styles.avatarPlaceholder]}><Text style={styles.avatarText}>{initials || "?"}</Text></View>}
-            </Pressable>
             <View style={styles.identityLine}>
               <Ionicons name="person-outline" size={18} color={colors.primary} />
               <Text style={styles.identityText} numberOfLines={2}>{profile?.name ?? "Học viên"}</Text>
@@ -107,6 +104,9 @@ export function ProfileForm() {
               <Ionicons name="mail-outline" size={18} color={colors.primary} />
               <Text style={[styles.identityText, styles.identityEmail]} numberOfLines={2}>{profile?.email ?? ""}</Text>
             </View>
+            <Pressable accessibilityRole="button" accessibilityLabel="Đổi ảnh đại diện" disabled={upload.isPending} onPress={() => void pickAvatar()} style={({ pressed }) => [styles.avatarButton, pressed && styles.pressed]}>
+              {avatarUri ? <Image source={{ uri: avatarUri }} style={styles.avatar} /> : <View style={[styles.avatar, styles.avatarPlaceholder]}><Text style={styles.avatarText}>{initials || "?"}</Text></View>}
+            </Pressable>
           </View>
         )}
         {selectedAvatar ? (
@@ -142,7 +142,7 @@ const styles = StyleSheet.create({
   card: { gap: spacing.md },
   title: { color: colors.ink, fontSize: 20, fontWeight: "800" },
   subtitle: { color: colors.mutedForeground, fontSize: 13, lineHeight: 19 },
-  identity: { alignItems: "center", gap: spacing.sm }, avatarButton: { width: 56, height: 56, borderRadius: radius.pill }, pressed: { opacity: 0.75 }, avatar: { width: 56, height: 56, borderRadius: radius.pill, backgroundColor: colors.softBlue }, avatarPlaceholder: { alignItems: "center", justifyContent: "center" }, avatarText: { color: colors.primary, fontSize: 18, fontWeight: "800" }, identityLine: { alignSelf: "stretch", flexDirection: "row", alignItems: "center", gap: spacing.sm, minWidth: 0 }, identityText: { flexShrink: 1, color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700" }, identityEmail: { color: colors.mutedForeground, fontSize: 13, fontWeight: "500" }, avatarActions: { flexDirection: "column", gap: spacing.sm },
+  identity: { alignItems: "center", gap: spacing.md }, avatarButton: { width: 80, height: 80, borderRadius: radius.pill }, pressed: { opacity: 0.75 }, avatar: { width: 80, height: 80, borderRadius: radius.pill, backgroundColor: colors.softBlue }, avatarPlaceholder: { alignItems: "center", justifyContent: "center" }, avatarText: { color: colors.primary, fontSize: 24, fontWeight: "800" }, identityLine: { alignSelf: "stretch", flexDirection: "row", alignItems: "center", gap: spacing.sm, minWidth: 0 }, identityText: { flexShrink: 1, color: colors.ink, fontSize: 14, lineHeight: 20, fontWeight: "700" }, identityEmail: { color: colors.mutedForeground, fontSize: 13, fontWeight: "500" }, avatarActions: { flexDirection: "column", gap: spacing.sm },
   readonlyField: { gap: spacing.xs },
   label: { color: colors.ink, fontSize: 14, fontWeight: "600" },
   readonlyInput: { minHeight: 52, justifyContent: "center", paddingHorizontal: spacing.md, borderRadius: radius.sm, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.background },

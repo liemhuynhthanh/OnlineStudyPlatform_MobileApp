@@ -58,4 +58,4 @@ There is no test framework configured. Manual smoke matrix at 390px, 768px, and 
 
 ## Native notes
 
-Mobile auth uses `/auth/mobile/login`, `/auth/mobile/refresh`, and `/auth/mobile/logout`, with refresh tokens stored in Expo SecureStore. Image upload uses `expo-image-picker`. Push notifications require an EAS development/production build and are unavailable in Expo Go on Android for newer SDKs; the app skips all native push work on web.
+Mobile uses the same auth contract as web: `/auth/login`, `/auth/refresh`, and `/auth/logout` with the refresh cookie only. The access token is stored in Expo SecureStore; native refresh depends on cookie availability, so native sessions may require signing in again after the access token expires. Image upload uses `expo-image-picker`. Push notifications require an EAS development/production build and are unavailable in Expo Go on Android for newer SDKs; the app skips all native push work on web.
