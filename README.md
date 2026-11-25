@@ -10,12 +10,13 @@ npm install
 npx expo start
 ```
 
-For a physical device, set `EXPO_PUBLIC_API_URL` to a backend URL reachable from the phone, such as `http://192.168.1.9:3001`. Android emulators use `http://10.0.2.2:3001`; do not use `localhost` from a device.
+For a physical device, set `EXPO_PUBLIC_API_URL` to a backend URL reachable from the phone, such as `http://192.168.1.9:3001`. Android emulators use `http://10.0.2.2:3001`; do not use `localhost` from a device. Avatar URLs from a local MinIO endpoint are rewritten to the API host on port `9000` unless `EXPO_PUBLIC_MINIO_PUBLIC_ENDPOINT` is set.
 
 ## Environment
 
 - `EXPO_PUBLIC_API_URL` — backend base URL.
 - `EXPO_PUBLIC_WEB_URL` — web app base URL used only by the not-found fallback.
+- `EXPO_PUBLIC_MINIO_PUBLIC_ENDPOINT` — optional device-reachable media origin such as `http://192.168.1.9:9000`.
 
 ## Phase 1 scope
 
