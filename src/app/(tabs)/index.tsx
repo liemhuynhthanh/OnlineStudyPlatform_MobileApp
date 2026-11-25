@@ -4,11 +4,13 @@ import { router } from "expo-router";
 import { useState } from "react";
 import { Alert as NativeAlert, Pressable, StyleSheet, Text, View } from "react-native";
 import { getUnreadNotificationCount, listLatestCourses, getDashboard } from "../../api/services";
+import { PaginationRow } from "../../components/catalog/pagination-row";
 import { PublicCourseCard } from "../../components/catalog/public-course-card";
 import { LearnerShortcuts } from "../../components/learner/learner-shortcuts";
 import { ActivityTimeline, StudyCourseList, StudyStatsGrid } from "../../components/study/dashboard-cards";
 import { Alert, Button, EmptyState, ErrorState, Header, LoadingState, Screen, SectionHeading, Skeleton } from "../../components/ui";
 import { useAuth } from "../../context/auth-context";
+import { useLocalPagination } from "../../hooks/use-local-pagination";
 import { colors, radius, spacing } from "../../theme";
 
 export default function LandingOrDashboard() {
@@ -17,6 +19,8 @@ export default function LandingOrDashboard() {
   const dashboard = useQuery({ queryKey: ["dashboard"], queryFn: getDashboard, enabled: Boolean(user) });
   const unread = useQuery({ queryKey: ["notifications", "unread-count"], queryFn: getUnreadNotificationCount, enabled: Boolean(user) });
   const latest = useQuery({ queryKey: ["latestCourses", 8], queryFn: () => listLatestCourses(8), enabled: !user });
+  const dashboardPagination = useLocalPagination(dashboard.data?.courses ?? []);
+  const latestPagination = useLocalPagination(latest.data ?? []);
 
   function confirmSignOut() {
     NativeAlert.alert("Đăng xuất", "Bạn có chắc muốn đăng xuất khỏi ứng dụng?", [
@@ -50,7 +54,18 @@ export default function LandingOrDashboard() {
         </View>
         <Alert title="Gợi ý dành cho bạn" message="Đăng nhập để xem các khóa học được gợi ý theo lộ trình của bạn." actionLabel="Đăng nhập" onAction={() => router.push("/sign-in")} />
         <SectionHeading eyebrow="Khóa học" title="Khóa học mới nhất" action="Xem tất cả" onAction={() => router.push("/(tabs)/courses")} />
-        {latest.isLoading ? <View style={styles.list}><Skeleton height={92} /><Skeleton height={92} /><Skeleton height={92} /></View> : latest.isError ? <ErrorState message="Không tải được khóa học mới nhất." onRetry={() => void latest.refetch()} /> : latest.data?.length ? <View style={styles.list}>{latest.data.map((course) => <PublicCourseCard key={course.id} course={course} onPress={() => router.push({ pathname: "/course/[courseId]", params: { courseId: course.id } })} />)}</View> : <EmptyState title="Chưa có khóa học" message="Các khóa học mới nhất sẽ xuất hiện tại đây." icon="school-outline" />}
+        {latest.isLoading ? (
+          <View style={styles.list}><Skeleton height={92} /><Skeleton height={92} /><Skeleton height={92} /></View>
+        ) : latest.isError ? (
+          <ErrorState message="Không tải được khóa học mới nhất." onRetry={() => void latest.refetch()} />
+        ) : latestPagination.total ? (
+          <View style={styles.list}>
+            {latestPagination.visibleItems.map((course) => <PublicCourseCard key={course.id} course={course} onPress={() => router.push({ pathname: "/course/[courseId]", params: { courseId: course.id } })} />)}
+            {latestPagination.totalPages > 1 ? <PaginationRow page={latestPagination.page} totalPages={latestPagination.totalPages} total={latestPagination.total} onChange={latestPagination.setPage} /> : null}
+          </View>
+        ) : (
+          <EmptyState title="Chưa có khóa học" message="Các khóa học mới nhất sẽ xuất hiện tại đây." icon="school-outline" />
+        )}
       </Screen>
     );
   }
@@ -59,6 +74,7 @@ export default function LandingOrDashboard() {
   if (dashboard.isError || !dashboard.data) return <Screen scroll={false}><ErrorState message="Không tải được bảng điều khiển." onRetry={() => void dashboard.refetch()} /></Screen>;
 
   const data = dashboard.data;
+
   return (
     <Screen>
       <Header right={<View style={styles.headerActions}><Pressable accessibilityRole="button" accessibilityLabel="Thông báo" hitSlop={8} onPress={() => router.push("/notifications")} style={styles.iconButton}>{(unread.data?.count ?? 0) > 0 ? <View style={styles.unreadDot} /> : null}<Ionicons name="notifications-outline" size={21} color={colors.primary} /></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Đăng xuất" disabled={signingOut} hitSlop={8} onPress={confirmSignOut} style={styles.iconButton}><Ionicons name="log-out-outline" size={21} color={colors.danger} /></Pressable><Pressable accessibilityRole="button" accessibilityLabel="Hồ sơ" hitSlop={8} onPress={() => router.push("/(tabs)/profile")} style={styles.iconButton}><Ionicons name="person-circle-outline" size={21} color={colors.primary} /></Pressable></View>} />
@@ -66,7 +82,8 @@ export default function LandingOrDashboard() {
       <SectionHeading eyebrow="Tiện ích" title="Dịch vụ học tập" />
       <LearnerShortcuts />
       <SectionHeading eyebrow="Lộ trình" title="Khóa học của bạn" action="Tất cả" onAction={() => router.push("/(tabs)/my-learning")} />
-      <StudyCourseList courses={data.courses} onPressCourse={(course) => router.push({ pathname: "/learn/[courseId]", params: { courseId: course.courseId, ...(course.continueLearning.lessonId ? { lessonId: course.continueLearning.lessonId } : {}) } })} />
+      <StudyCourseList courses={dashboardPagination.visibleItems} onPressCourse={(course) => router.push({ pathname: "/learn/[courseId]", params: { courseId: course.courseId, ...(course.continueLearning.lessonId ? { lessonId: course.continueLearning.lessonId } : {}) } })} />
+      {dashboardPagination.totalPages > 1 ? <PaginationRow page={dashboardPagination.page} totalPages={dashboardPagination.totalPages} total={dashboardPagination.total} onChange={dashboardPagination.setPage} /> : null}
       <SectionHeading eyebrow="Nhịp học tập" title="Hoạt động gần đây" />
       <ActivityTimeline activities={data.recentActivities} />
     </Screen>
