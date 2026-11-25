@@ -1,6 +1,6 @@
 import { Ionicons } from "@expo/vector-icons";
 import { useState } from "react";
-import { Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
+import { KeyboardAvoidingView, Modal, Pressable, ScrollView, StyleSheet, Text, TextInput, View } from "react-native";
 import type { ChatSession, LearningCourse } from "../../api/types";
 import { PaginationRow } from "../catalog/pagination-row";
 import { Alert, Button, SegmentTabs } from "../ui";
@@ -17,7 +17,7 @@ export function LessonSheet({ visible, onClose, courseTitle, lessons, selectedLe
   return (
     <Modal visible={visible} animationType="slide" transparent onRequestClose={onClose}>
       <Pressable accessibilityLabel="Đóng" onPress={onClose} style={styles.backdrop} />
-      <View style={styles.sheet}>
+      <KeyboardAvoidingView style={[styles.sheet, tab === "chat" && styles.chatSheet]} behavior="padding" keyboardVerticalOffset={0}>
         <View style={styles.handle} />
         <View style={styles.header}>
           <View style={styles.headerCopy}>
@@ -65,16 +65,16 @@ export function LessonSheet({ visible, onClose, courseTitle, lessons, selectedLe
             </View>
           </View>
         )}
-      </View>
+      </KeyboardAvoidingView>
     </Modal>
   );
 }
 
 const styles = StyleSheet.create({
   backdrop: { position: "absolute", inset: 0, backgroundColor: "#17172F88" },
-  sheet: { position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "86%", minHeight: "60%", paddingHorizontal: spacing.md, paddingBottom: spacing.md, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, backgroundColor: colors.background },
-  handle: { alignSelf: "center", width: 42, height: 4, borderRadius: 2, backgroundColor: colors.border, marginVertical: spacing.sm },
+  sheet: { position: "absolute", left: 0, right: 0, bottom: 0, maxHeight: "86%", minHeight: "60%", paddingHorizontal: spacing.md, paddingBottom: spacing.md, borderTopLeftRadius: radius.lg, borderTopRightRadius: radius.lg, backgroundColor: colors.background, overflow: "hidden" },
+  chatSheet: { height: "86%", minHeight: 0 }, handle: { alignSelf: "center", width: 42, height: 4, borderRadius: 2, backgroundColor: colors.border, marginVertical: spacing.sm },
   header: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md, marginBottom: spacing.md }, headerCopy: { flex: 1, gap: 3 }, eyebrow: { color: colors.primary, fontSize: 11, fontWeight: "800", textTransform: "uppercase", letterSpacing: 1 }, title: { color: colors.text, fontSize: 20, fontWeight: "800" }, close: { width: 40, height: 40, alignItems: "center", justifyContent: "center", borderRadius: 20, backgroundColor: colors.surface },
   body: { flex: 1, marginTop: spacing.md }, lessonRow: { flexDirection: "row", alignItems: "center", gap: spacing.md, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.card, borderWidth: 1, borderColor: colors.border, marginBottom: spacing.sm }, lessonActive: { borderColor: colors.primary, backgroundColor: colors.softIndigo }, rowPressed: { opacity: 0.75 }, lessonLocked: { opacity: 0.55 }, lessonNumber: { width: 34, height: 34, borderRadius: 17, alignItems: "center", justifyContent: "center", backgroundColor: colors.border }, lessonNumberActive: { backgroundColor: colors.primary }, lessonNumberDone: { backgroundColor: colors.softGreen }, lessonNumberText: { color: colors.text, fontWeight: "800" }, lessonCopy: { flex: 1, gap: 3 }, lessonTitle: { color: colors.text, fontSize: 14, fontWeight: "700" }, lessonMeta: { color: colors.mutedForeground, fontSize: 12 },
-  chatBody: { flex: 1, marginTop: spacing.md, gap: spacing.sm }, chatList: { flex: 1 }, message: { alignSelf: "flex-start", maxWidth: "88%", gap: 4, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.surface, marginBottom: spacing.sm }, messageUser: { alignSelf: "flex-end", backgroundColor: colors.softIndigo }, messageRole: { color: colors.primary, fontSize: 11, fontWeight: "800" }, messageText: { color: colors.text, fontSize: 14, lineHeight: 20 }, citation: { color: colors.mutedForeground, fontSize: 11 }, chatEmpty: { color: colors.mutedForeground, textAlign: "center", paddingVertical: spacing.xl }, chatInput: { minHeight: 84, maxHeight: 140, padding: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, color: colors.text }, chatFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md }, charCount: { color: colors.mutedForeground, fontSize: 11 },
+  chatBody: { flex: 1, minHeight: 0, marginTop: spacing.md, gap: spacing.sm }, chatList: { flex: 1, minHeight: 0 }, message: { alignSelf: "flex-start", maxWidth: "88%", gap: 4, padding: spacing.md, borderRadius: radius.md, backgroundColor: colors.surface, marginBottom: spacing.sm }, messageUser: { alignSelf: "flex-end", backgroundColor: colors.softIndigo }, messageRole: { color: colors.primary, fontSize: 11, fontWeight: "800" }, messageText: { color: colors.text, fontSize: 14, lineHeight: 20 }, citation: { color: colors.mutedForeground, fontSize: 11 }, chatEmpty: { color: colors.mutedForeground, textAlign: "center", paddingVertical: spacing.xl }, chatInput: { minHeight: 72, maxHeight: 120, flexShrink: 0, padding: spacing.md, borderRadius: radius.md, borderWidth: 1, borderColor: colors.border, backgroundColor: colors.surface, color: colors.text }, chatFooter: { flexDirection: "row", alignItems: "center", justifyContent: "space-between", gap: spacing.md, flexShrink: 0 }, charCount: { color: colors.mutedForeground, fontSize: 11 },
 });
