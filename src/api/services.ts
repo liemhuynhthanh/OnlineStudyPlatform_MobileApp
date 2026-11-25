@@ -1,4 +1,3 @@
-import { isAxiosError } from "axios";
 import { createAvatarFormData } from "../utils/avatar-upload";
 import { api } from "./client";
 import type { AiSummary, ApiSuccessResponse, AuthResponse, CartFilters, CartItem, CartResponse, ChangePasswordPayload, ChatSendResponse, ChatSession, CheckoutResult, CreateWatchEventPayload, CurrentUserResponse, EmailOtpDispatchResponse, Enrollment, LearnerCertificate, LearnerDashboard, LearnerPaymentTransactionFilters, LearnerPaymentTransactionListResult, LearningCourse, LearningLesson, MarkAllNotificationsSeenResult, NotificationListFilters, NotificationListResult, PasswordResetRequestResponse, PasswordResetVerifyResponse, PublicCourse, PublicCourseListFilters, PublicCourseListResult, Quiz, QuizAnswerPayload, QuizAttemptResult, QuizAttemptStartResponse, RegisterPushTokenPayload, RegisterUserPayload, RegisterUserResponse, UnreadNotificationCountResult, UpdateProfilePayload, UserProfile, WatchEventResponse } from "./types";
@@ -19,8 +18,8 @@ function buildLimitQuery(limit?: number): string {
   return buildQueryString([["limit", Math.min(limit, 20)]]);
 }
 
-export async function mobileLogin(email: string, password: string) { try { const { data } = await api.post<ApiSuccessResponse<AuthResponse>>("/auth/mobile/login", { email, password }); return data.data; } catch (error) { if (!isAxiosError(error) || ![404, 405].includes(error.response?.status ?? 0)) throw error; const { data } = await api.post<ApiSuccessResponse<AuthResponse>>("/auth/login", { email, password }); return data.data; } }
-export async function mobileLogout(refreshToken: string | null) { if (refreshToken) await api.post("/auth/mobile/logout", { refreshToken }); else await api.post("/auth/logout"); }
+export async function login(email: string, password: string) { const { data } = await api.post<ApiSuccessResponse<AuthResponse>>("/auth/login", { email, password }); return data.data; }
+export async function logout() { await api.post("/auth/logout"); }
 export async function getMe() { const { data } = await api.get<ApiSuccessResponse<UserProfile>>("/users/me"); return data.data; }
 export async function registerUser(payload: RegisterUserPayload) { const { data } = await api.post<ApiSuccessResponse<RegisterUserResponse>>("/auth/register", payload); return data.data; }
 export async function verifyEmail(email: string, otp: string) { const { data } = await api.post<ApiSuccessResponse<CurrentUserResponse>>("/auth/email/verify", { email, otp }); return data.data; }

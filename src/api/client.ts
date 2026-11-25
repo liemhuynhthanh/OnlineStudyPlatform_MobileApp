@@ -1,4 +1,4 @@
-import axios, { create, isAxiosError, type AxiosError, type InternalAxiosRequestConfig } from "axios";
+import { create, isAxiosError, type AxiosError, type InternalAxiosRequestConfig } from "axios";
 import * as SecureStore from "expo-secure-store";
 import type { ApiSuccessResponse, AuthResponse } from "./types";
 
@@ -10,13 +10,13 @@ export const getAccessToken = () => SecureStore.getItemAsync(accessKey);
 export const getRefreshToken = () => SecureStore.getItemAsync(refreshKey);
 export async function saveSession(session: AuthResponse) { await SecureStore.setItemAsync(accessKey, session.accessToken); if (session.refreshToken) await SecureStore.setItemAsync(refreshKey, session.refreshToken); else await SecureStore.deleteItemAsync(refreshKey); }
 export async function clearSession() { await Promise.all([SecureStore.deleteItemAsync(accessKey), SecureStore.deleteItemAsync(refreshKey)]); }
-async function refreshSession() { const refreshToken = await getRefreshToken(); const response = refreshToken ? await axios.post<ApiSuccessResponse<AuthResponse>>(`${baseURL}/auth/mobile/refresh`, { refreshToken }, { withCredentials: true }) : await axios.post<ApiSuccessResponse<AuthResponse>>(`${baseURL}/auth/refresh`, undefined, { withCredentials: true }); await saveSession(response.data.data); return response.data.data; }
+async function refreshSession() { const response = await api.post<ApiSuccessResponse<AuthResponse>>("/auth/refresh"); await saveSession(response.data.data); return response.data.data; }
 let refreshPromise: Promise<AuthResponse> | null = null;
 api.interceptors.request.use(async (config) => { const token = await getAccessToken(); if (token) config.headers.Authorization = `Bearer ${token}`; return config; });
 api.interceptors.response.use((response) => response, async (error: AxiosError) => {
   const original = error.config as InternalAxiosRequestConfig & { _retry?: boolean };
   const url = original?.url ?? "";
-  if (error.response?.status !== 401 || original?._retry || url.includes("/auth/mobile/")) return Promise.reject(error);
+  if (error.response?.status !== 401 || original?._retry || ["/auth/login", "/auth/refresh", "/auth/logout"].some((endpoint) => url.includes(endpoint))) return Promise.reject(error);
   original._retry = true;
   try { refreshPromise ??= refreshSession().finally(() => { refreshPromise = null; }); const session = await refreshPromise; original.headers.Authorization = `Bearer ${session.accessToken}`; return api(original); }
   catch (refreshError) { await clearSession(); return Promise.reject(refreshError); }
